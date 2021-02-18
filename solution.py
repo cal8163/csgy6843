@@ -18,15 +18,16 @@ def webServer(port=13331):
         try:
             message = connectionSocket.recv(1024).decode()
             filename = message.split()[1]
+            print (filename)
             f = open(filename[1:])
             # Fill in start
             outputdata = f.read()
+            print(outputdata)
             # Fill in end
 
             #Send one HTTP header line into socket
             #Fill in start
             goodresponse = "HTTP/1.1 200 OK\r\n"
-
             connectionSocket.send(goodresponse.encode())
             #Fill in end
 
@@ -41,6 +42,8 @@ def webServer(port=13331):
             #Fill in start
             badresponse = "HTTP/1.1 404 Not Found\r\n"
             connectionSocket.send(badresponse.encode())
+            connectionSocket.close()
+            pass
             #Fill in end
 
             #Close client socket
