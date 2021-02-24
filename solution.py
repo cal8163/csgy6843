@@ -1,50 +1,72 @@
-#import socket module
 from socket import *
-import sys # In order to terminate the program
 
-def webServer(port=13331):
-    serverSocket = socket(AF_INET, SOCK_STREAM)
 
-    #Prepare a sever socket
-    serverSocket.bind(("", port))
-    #Fill in start
+def smtp_client(port=1025, mailserver='127.0.0.1'):
+    msg = "\r\n My message"
+    endmsg = "\r\n.\r\n"
 
-    #Fill in end
+    # Choose a mail server (e.g. Google mail server) if you want to verify the script beyond GradeScope
 
-    while True:
-        #Establish the connection
-        print('Ready to serve...')
-        connectionSocket, addr = #Fill in start      #Fill in end
-        try:
-            message = #Fill in start    #Fill in end
-            filename = message.split()[1]
-            f = open(filename[1:])
-            outputdata = #Fill in start     #Fill in end
+    # Create socket called clientSocket and establish a TCP connection with mailserver and port
 
-            #Send one HTTP header line into socket
-            #Fill in start
+    # Fill in start
+    clientSocket = socket(AF_INET, SOCK_STREAM)
+    clientSocket.connect(mailserver, port)
+    # Fill in end
 
-            #Fill in end
+    # Send HELO command and print server response.
+    heloCommand = 'HELO nyu.edu\r\n'
+    clientSocket.send(heloCommand.encode())
+    recv1 = clientSocket.recv(1024).decode()
 
-            #Send the content of the requested file to the client
-            for i in range(0, len(outputdata)):
-                connectionSocket.send(outputdata[i].encode())
+    # Send MAIL FROM command and print server response.
+    # Fill in start
+    mailfromCommand = 'MAIL FROM: <cal8163@nyu.edu>\r\n'
+    clientSocket.send(mailfromCommand.encode())
+    recv2 = clientSocket.recv(1024).decode()
+    #print(recv2)
+    # Fill in end
 
-            connectionSocket.send("\r\n".encode())
-            connectionSocket.close()
-        except IOError:
-            #Send response message for file not found (404)
-            #Fill in start
+    # Send RCPT TO command and print server response.
+    # Fill in start
+    rcpttoCommand = 'RCPT TO: <cal8163@nyu.edu>\r\n'
+    clientSocket.send(rcpttoCommand.encode())
+    recv3 = clientSocket.recv(1024).decode()
+    #print(recv3)
+    # Fill in end
 
-            #Fill in end
+    # Send DATA command and print server response.
+    # Fill in start
+    dataCommand = 'DATA\r\n'
+    clientSocket.send(dataCommand.encode())
+    recv4 = clientSocket.recv(1024).decode()
+    #print(recv4)
 
-            #Close client socket
-            #Fill in start
+    # Fill in end
 
-            #Fill in end
+    # Send message data.
+    # Fill in start
+    clientSocket.send(msg.encode())
+    # Fill in end
 
-    serverSocket.close()
-    sys.exit()  # Terminate the program after sending the corresponding data
+    # Message ends with a single period.
+    # Fill in start
+    clientSocket.send(endmsg.encode())
+    # Fill in end
 
-if __name__ == "__main__":
-    webServer(13331)
+    # Send QUIT command and get server response.
+    # Fill in start
+    quitCommand = "QUIT\r\n"
+    clientSocket.send(quitCommand.encode())
+    recv5 = clientSocket.recv(1024).decode()
+    #print(recv5)
+    clientSocket.close()
+    # Fill in end
+
+
+
+
+
+
+if __name__ == '__main__':
+    smtp_client(1025, '127.0.0.1')
