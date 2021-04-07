@@ -1,31 +1,159 @@
-### welcome_assignment_answers
-### Input - All eight questions given in the assignment.
-### Output - The right answer for the specific question.
+from socket import *
+import os
+import sys
+import struct
+import time
+import select
+import ipaddress
+import statistics
+import binascii
+# Should use stdev
 
-def welcome_assignment_answers(question):
-    #The student doesn't have to follow the skeleton for this assignment.
-    #Another way to implement is using a "case" statements similar to C.
-    if question == "Are encoding and encryption the same? - Yes/No":
-        answer = "No"
-    elif question == "Is it possible to decrypt a message without a key? - Yes/No":
-        answer = "No"
-    elif question == "Is it possible to decode a message without a key? - Yes/No":
-        answer = "Yes"
-    elif question == "Is a hashed message supposed to be un-hashed? - Yes/No":
-        answer = "No"
-    elif question == "What is the MD5 hashing value to the following message: 'NYU Computer Networking' - Use MD5 hash generator and use the answer in your code":
-        answer = "42b76fe51778764973077a5a94056724"
-    elif question == "Is MD5 a secured hashing algorithm? - Yes/No":
-        answer = "No"
-    elif question == "What layer from the TCP/IP model the protocol DHCP belongs to? - The answer should be a numeric number":
-        answer = 5
-    elif question == "What layer of the TCP/IP model the protocol TCP belongs to? - The answer should be a numeric number":
-        answer = 4
-    return(answer)
-# Complete all the questions.
+ICMP_ECHO_REQUEST = 8
 
 
-if __name__ == "__main__":
-    #use this space to debug and verify that the program works
-    debug_question = "Are encoding and encryption the same? - Yes/No"
-    print(welcome_assignment_answers(debug_question))
+def checksum(string):
+   csum = 0
+   countTo = (len(string) // 2) * 2
+   count = 0
+
+   while count < countTo:
+       thisVal = (string[count + 1]) * 256 + (string[count])
+       csum += thisVal
+       csum &= 0xffffffff
+       count += 2
+
+   if countTo < len(string):
+       csum += (string[len(string) - 1])
+       csum &= 0xffffffff
+
+   csum = (csum >> 16) + (csum & 0xffff)
+   csum = csum + (csum >> 16)
+   answer = ~csum
+   answer = answer & 0xffff
+   answer = answer >> 8 | (answer << 8 & 0xff00)
+   return answer
+
+
+
+def receiveOnePing(mySocket, ID, timeout, destAddr):
+   timeLeft = timeout
+
+
+   while 1:
+       startedSelect = time.time()
+       whatReady = select.select([mySocket], [], [], timeLeft)
+       howLongInSelect = (time.time() - startedSelect)
+       if whatReady[0] == []:  # Timeout
+           return "Request timed out."
+
+       timeReceived = time.time()
+       recPacket, addr = mySocket.recvfrom(1024)
+
+       # Fill in start
+
+       ICMPheader = recPacket[20:28]
+       # Fetch the ICMP header from the IP packet
+       ICMP_ECHO_REQUEST, code, myChecksum, ID, Sequence = struct.unpack("bbHHh", ICMPheader)
+       IPheader = recPacket[:20]
+       ip_version,ip_type, ip_length, ip_id, ip_flags, ip_ttl, ipprotocl, ip_checksum, srce_ip, dest_ip \
+           = struct.unpack("!BBHHHBBHII",IPheader)
+       lag=(howLongInSelect*1000)
+       if timeLeft > 0:
+           receivedpacket = ICMP_ECHO_REQUEST,code, myChecksum, ID, Sequence, ip_version, ip_type, ip_length, ip_id,\
+               ip_flags, ip_ttl, ipprotocl, ip_checksum,str(ipaddress.IPv4Address(srce_ip)), \
+                            str(ipaddress.IPv4Address(dest_ip)), lag
+           return receivedpacket    
+
+       # Fill in end
+       timeLeft = timeLeft - howLongInSelect
+
+       if timeLeft <= 0:
+           return "Request timed out."
+
+
+
+def sendOnePing(mySocket, destAddr, ID):
+   # Header is type (8), code (8), checksum (16), id (16), sequence (16)
+
+   myChecksum = 0
+   # Make a dummy header with a 0 checksum
+   # struct -- Interpret strings as packed binary data
+   header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, 0, myChecksum, ID, 1)
+   data = struct.pack("d", time.time())
+   # Calculate the checksum on the data and the dummy header.
+   myChecksum = checksum(header + data)
+
+   # Get the right checksum, and put in the header
+
+   if sys.platform == 'darwin':
+       # Convert 16-bit integers from host to network  byte order
+       myChecksum = htons(myChecksum) & 0xffff
+   else:
+       myChecksum = htons(myChecksum)
+
+
+   header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, 0, myChecksum, ID, 1)
+   packet = header + data
+
+   mySocket.sendto(packet, (destAddr, 1))  # AF_INET address must be tuple, not str
+
+
+
+   # Both LISTS and TUPLES consist of a number of objects
+   # which can be referenced by their position number within the object.
+
+def doOnePing(destAddr, timeout):
+   icmp = getprotobyname("icmp")
+
+
+   # SOCK_RAW is a powerful socket type. For more details:   http://sockraw.org/papers/sock_raw
+   mySocket = socket(AF_INET, SOCK_RAW, icmp)
+
+   myID = os.getpid() & 0xFFFF  # Return the current process i
+   sendOnePing(mySocket, destAddr, myID)
+   delay = receiveOnePing(mySocket, myID, timeout, destAddr)
+   mySocket.close()
+   return delay
+
+
+def ping(host, timeout=1):
+   # timeout=1 means: If one second goes by without a reply from the server,      # the client assumes that either the client's ping or the server's pong is lost
+   dest = gethostbyname(host)
+   print("Pinging " + dest + " using Python:")
+   print("")
+   # Calculate vars values and return them
+   #vars = [str(round(packet_min, 2)), str(round(packet_avg, 2)), str(round(packet_max, 2)),str(round(stdev(stdev_var), 2))]
+   # Send ping requests to a server separated by approximately one second
+   sentpcktnmber = 0
+   packetlisttracker = []
+
+   for i in range(0,4):
+       delay = doOnePing(dest, timeout)
+       sentpcktnmber += 1
+       if delay == "Request timed out.":
+           packetlisttracker.append(0)
+           print (delay)
+       else:
+           print("Reply from:",str(delay[13])+":","bytes="+str(delay[6]), "time="+str(round(delay[15],7))+"ms", \
+             "TTL=" + str(delay[10]))
+           packetlisttracker.append(delay[15])
+
+       time.sleep(1)  # one second
+   goodpacketracker = 0
+   for i in range (len(packetlisttracker)):
+        if packetlisttracker[i] != 0:
+            goodpacketracker += 1
+   packetstats = 1 - (goodpacketracker / sentpcktnmber)
+   print("\n""---",dest,"ping statistics ---")
+   print(sentpcktnmber,"packets transmitted,", str(goodpacketracker)+" packets received," "{:.1%}".format(packetstats), "packet loss")
+   pingmin = min(packetlisttracker)
+   packetavg = sum(packetlisttracker)/len(packetlisttracker)
+   packetmax = max(packetlisttracker)
+   packetstdev = statistics.stdev(packetlisttracker)
+   print("round-trip min/avg/max/stddev =",str(round(pingmin,2))+"/"+str(round(packetavg,2))+"/"+str(round(packetmax,2))+"/"+str(round(packetstdev,2)),"ms")
+
+   #return vars
+
+if __name__ == '__main__':
+   ping("google.co.il")
