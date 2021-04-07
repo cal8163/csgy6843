@@ -147,12 +147,14 @@ def ping(host, timeout=1):
    packetstats = 1 - (goodpacketracker / sentpcktnmber)
    #print("\n""---",dest,"ping statistics ---")
    #print(sentpcktnmber,"packets transmitted,", str(goodpacketracker)+" packets received," "{:.1%}".format(packetstats), "packet loss")
-   pingmin = min(packetlisttracker)
-   packetavg = sum(packetlisttracker)/len(packetlisttracker)
+   pingmin = round((min(packetlisttracker)),2)
+   packetavg = round((sum(packetlisttracker))/(len(packetlisttracker)),2)
    packetmax = max(packetlisttracker)
+   packetmaxrnd = round(packetmax,2)
    packetstdev = statistics.stdev(packetlisttracker)
-   #print("round-trip min/avg/max/stddev =",str(round(pingmin,2))+"/"+str(round(packetavg,2))+"/"+str(round(packetmax,2))+"/"+str(round(packetstdev,2)),"ms")
-   varss = [str(round(pingmin, 2)), str(round(packetavg, 2)), str(round(packetmax, 2)),str(round(packetstdev), 2)]
+   packetstdevrund = round(packetstdev,2)
+   #print("round-trip min/avg/max/stddev =",str(pingmin)+"/"+str(packetavg)+"/"+str(packetmaxrnd)+"/"+str(packetstdevrund),"ms")
+   varss = [str(pingmin), str(packetavg),str(packetmaxrnd),str(packetstdevrund)]
    return varss
 
 if __name__ == '__main__':
