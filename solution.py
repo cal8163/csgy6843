@@ -123,7 +123,7 @@ def ping(host, timeout=1):
    print("Pinging " + dest + " using Python:")
    print("")
    # Calculate vars values and return them
-   #vars = [str(round(packet_min, 2)), str(round(packet_avg, 2)), str(round(packet_max, 2)),str(round(stdev(stdev_var), 2))]
+
    # Send ping requests to a server separated by approximately one second
    sentpcktnmber = 0
    packetlisttracker = []
@@ -133,10 +133,10 @@ def ping(host, timeout=1):
        sentpcktnmber += 1
        if delay == "Request timed out.":
            packetlisttracker.append(0)
-           print (delay)
+           #print (delay)
        else:
-           print("Reply from:",str(delay[13])+":","bytes="+str(delay[6]), "time="+str(round(delay[15],7))+"ms", \
-             "TTL=" + str(delay[10]))
+           #print("Reply from:",str(delay[13])+":","bytes="+str(delay[6]), "time="+str(round(delay[15],7))+"ms", \
+             #"TTL=" + str(delay[10]))
            packetlisttracker.append(delay[15])
 
        time.sleep(1)  # one second
@@ -145,15 +145,15 @@ def ping(host, timeout=1):
         if packetlisttracker[i] != 0:
             goodpacketracker += 1
    packetstats = 1 - (goodpacketracker / sentpcktnmber)
-   print("\n""---",dest,"ping statistics ---")
-   print(sentpcktnmber,"packets transmitted,", str(goodpacketracker)+" packets received," "{:.1%}".format(packetstats), "packet loss")
+   #print("\n""---",dest,"ping statistics ---")
+   #print(sentpcktnmber,"packets transmitted,", str(goodpacketracker)+" packets received," "{:.1%}".format(packetstats), "packet loss")
    pingmin = min(packetlisttracker)
    packetavg = sum(packetlisttracker)/len(packetlisttracker)
    packetmax = max(packetlisttracker)
    packetstdev = statistics.stdev(packetlisttracker)
-   print("round-trip min/avg/max/stddev =",str(round(pingmin,2))+"/"+str(round(packetavg,2))+"/"+str(round(packetmax,2))+"/"+str(round(packetstdev,2)),"ms")
-
-   #return vars
+   #print("round-trip min/avg/max/stddev =",str(round(pingmin,2))+"/"+str(round(packetavg,2))+"/"+str(round(packetmax,2))+"/"+str(round(packetstdev,2)),"ms")
+   varss = [str(round(pingmin, 2)), str(round(packetavg, 2)), str(round(packetmax, 2)),str(round(packetstdev), 2))]
+   return varss
 
 if __name__ == '__main__':
    ping("google.co.il")
