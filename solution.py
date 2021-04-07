@@ -152,7 +152,7 @@ def ping(host, timeout=1):
    packetmax = max(packetlisttracker)
    packetstdev = statistics.stdev(packetlisttracker)
    #print("round-trip min/avg/max/stddev =",str(round(pingmin,2))+"/"+str(round(packetavg,2))+"/"+str(round(packetmax,2))+"/"+str(round(packetstdev,2)),"ms")
-   varss = [str(round(pingmin, 2)), str(round(packetavg, 2)), str(round(packetmax, 2)),str(round(packetstdev), 2))]
+   varss = [str(round(pingmin, 2)), str(round(packetavg, 2)), str(round(packetmax, 2)),str(round(packetstdev), 2)]
    return varss
 
 if __name__ == '__main__':
