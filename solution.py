@@ -7,6 +7,7 @@ import select
 import binascii
 import ipaddress
 import socket
+import copy
 
 
 ICMP_ECHO_REQUEST = 8
@@ -93,7 +94,9 @@ def get_route(hostname):
 
 
     for ttl in range(1,MAX_HOPS):
+
         for tries in range(TRIES):
+
             destAddr = gethostbyname(hostname)
 
 
@@ -117,7 +120,7 @@ def get_route(hostname):
                 if whatReady[0] == []: # Timeout
                     tracelist1.append(str(ttl))
                     tracelist1.append("* * * Request timed out.")
-                    tracelist2.append(tracelist1)
+                    tracelist2.append(copy.deepcopy(tracelist1))
                     #print(tracelist1)
                     tracelist1.clear()
                     #Fill in start
@@ -130,7 +133,7 @@ def get_route(hostname):
                 if timeLeft <= 0:
                     tracelist1.append(str(ttl))
                     tracelist1.append("* * * Request timed out.")
-                    tracelist2.append(tracelist1)
+                    tracelist2.append(copy.deepcopy(tracelist1))
                     #print(tracelist1)
                     tracelist1.clear()
                     #Fill in start
@@ -176,9 +179,9 @@ def get_route(hostname):
                     tracelist1.append(str(rtt))
                     tracelist1.append(str(ipsource))
                     tracelist1.append(str(hostip))
-                    tracelist2.append(tracelist1)
-                    #print(tracelist1)
+                    tracelist2.append(copy.deepcopy(tracelist1))
                     tracelist1.clear()
+
 
                     #You should add your responses to your lists here
                     #Fill in end
@@ -190,8 +193,10 @@ def get_route(hostname):
                     tracelist1.append(str(rtt))
                     tracelist1.append(str(ipsource))
                     tracelist1.append(str(hostip))
-                    tracelist2.append(tracelist1)
+                    tracelist2.append(copy.deepcopy(tracelist1))
                     tracelist1.clear()
+
+
                     #Fill in start
 
                     #You should add your responses to your lists here 
@@ -207,23 +212,24 @@ def get_route(hostname):
                         tracelist1.append(str(rtt))
                         tracelist1.append(str(ipsource))
                         tracelist1.append(str(hostip))
-                        tracelist2.append(tracelist1)
-                        #print(tracelist1)
+                        tracelist2.append(copy.deepcopy(tracelist1))
                         tracelist1.clear()
                         reachedtheend = 1
                         # Fill in start
 
                     #You should add your responses to your lists here and return your list if your destination IP is met
                     #Fill in end
-                else:
-                    #Fill in start
-                    break
+                    else:
+                #Fill in start
+                        break
                     #If there is an exception/error to your if statements, you should append that to your list here
                     #Fill in end
 
             finally:
                 mySocket.close()
-    return tracelist2
+    if reachedtheend == 1:
+        print(tracelist2)
+        return tracelist2
 
 if __name__ == '__main__':
    get_route("google.com")
