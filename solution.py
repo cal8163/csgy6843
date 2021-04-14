@@ -174,7 +174,7 @@ def get_route(hostname):
                     timeSent = struct.unpack("d", recvPacket[28:28 +
                     bytes])[0]
                     #Fill in start
-                    tracelist1.append(ttl)
+                    tracelist1.append(str(ttl))
                     rtt = (str(howLongInSelect*1000)+"ms")
                     tracelist1.append(str(rtt))
                     tracelist1.append(str(ipsource))
@@ -188,7 +188,7 @@ def get_route(hostname):
                 elif types == 3:
                     bytes = struct.calcsize("d")
                     timeSent = struct.unpack("d", recvPacket[28:28 + bytes])[0]
-                    tracelist1.append(ttl)
+                    tracelist1.append(str(ttl))
                     rtt = (str(howLongInSelect*1000)+"ms")
                     tracelist1.append(str(rtt))
                     tracelist1.append(str(ipsource))
@@ -207,7 +207,7 @@ def get_route(hostname):
                         timeSent = struct.unpack("d", recvPacket[28:28 + bytes])[0]
 
                         #Fill in start
-                        tracelist1.append(ttl)
+                        tracelist1.append(str(ttl))
                         rtt = (str(howLongInSelect*1000)+"ms")
                         tracelist1.append(str(rtt))
                         tracelist1.append(str(ipsource))
@@ -227,9 +227,8 @@ def get_route(hostname):
 
             finally:
                 mySocket.close()
-    if reachedtheend == 1:
-        print(tracelist2)
-        return tracelist2
+
+    return tracelist2
 
 if __name__ == '__main__':
    get_route("google.com")
