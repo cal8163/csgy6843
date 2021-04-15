@@ -164,7 +164,7 @@ def get_route(hostname):
                     #Fill in end
                 except herror:   #if the host does not provide a hostname
                     #Fill in start
-                    hostip = "hostname not returnable."
+                    hostip = "hostname not returnable"
 
                     #Fill in end
 
@@ -228,7 +228,7 @@ def get_route(hostname):
             finally:
                 mySocket.close()
     #print(tracelist2)
-    print (tracelist2)
+    #print (tracelist2)
     return tracelist2
 
 if __name__ == '__main__':
