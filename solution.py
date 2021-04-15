@@ -227,7 +227,7 @@ def get_route(hostname):
 
             finally:
                 mySocket.close()
-
+    print(tracelist2)
     return tracelist2
 
 if __name__ == '__main__':
