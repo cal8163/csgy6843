@@ -158,7 +158,7 @@ def get_route(hostname):
                 #Fill in end
                 try: #try to fetch the hostname
                     #Fill in start
-                    hostip = socket.gethostbyaddr(ipsource)[0]
+                    hostip = str(socket.gethostbyaddr(ipsource)[0])
 
 
                     #Fill in end
