@@ -158,7 +158,7 @@ def get_route(hostname):
                 #Fill in end
                 try: #try to fetch the hostname
                     #Fill in start
-                    hostip = str(socket.gethostbyaddr(ipsource)[0])
+                    hostip = str(socket.getfqdn((socket.gethostbyaddr(ipsource)[0])))
 
 
                     #Fill in end
@@ -228,6 +228,7 @@ def get_route(hostname):
             finally:
                 mySocket.close()
     #print(tracelist2)
+    print (tracelist2)
     return tracelist2
 
 if __name__ == '__main__':
